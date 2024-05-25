@@ -1,14 +1,14 @@
 from fastapi import FastAPI
 
 from app.core import config
-from app.router import api_router
+from app.products.api import router
 
 app = FastAPI(title=config.PROJECT_NAME,
-              openapi_url="openapi.json",
+              openapi_url="/openapi.json",
               version=config.VERSION,
               debug=config.DEBUG)
 
-app.include_router(api_router, prefix=config.API_V1_PREFIX)
+app.include_router(router, prefix=config.API_V1_PREFIX)
 
 
 @app.get("/", tags=["Health check"])

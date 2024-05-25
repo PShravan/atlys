@@ -1,24 +1,20 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends
 
+from app.authenticate import token_authenticate
 from .schema import SearchQuery, SearchResponse
 from .service import ScrapeDentalStall
 
 router = APIRouter()
 
-STATIC_TOKEN = "static_token_here"
 
-
-# Dependency to authenticate requests
-def authenticate(token: str = Header(...)):
-    if token != STATIC_TOKEN:
-        raise HTTPException(status_code=401, detail="Invalid token")
-    return True
-
-
-@router.get("/search/", response_model=SearchResponse)
+@router.get("/search/", response_model=SearchResponse, tags=["Scrape Data"])
 async def search(
-    data: SearchQuery, authenticated: bool = Depends(authenticate)
+    params: SearchQuery = Depends(),
+    authenticated: bool = Depends(token_authenticate),
 ):
-    sds = ScrapeDentalStall(data)
+    sds = ScrapeDentalStall(params)
     sds.scrape_and_save()
-    return {"message": "scraped successfully"}
+    return {
+        "message": "scraped successfully",
+        "data": []
+    }

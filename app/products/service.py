@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from fastapi import HTTPException
 from fastapi import status as http_status
 
-from products.schema import Product, SearchQuery
+from app.products.schema import Product, SearchQuery
 from app.redis import redis_get_key, redis_set_key
 
 
@@ -101,7 +101,7 @@ class ScrapeDentalStall:
         return products
 
     def request_url(self, url):
-        for attempt in range(self.retries):
+        for _ in range(self.retries):
             try:
                 response = requests.get(url)
                 # Check if the response status code indicates a server error (5xx)
@@ -147,10 +147,7 @@ class ScrapeDentalStall:
             print(f"Failed to download image from {url}")
 
     def update_redis(key, value):
-        redis_value = redis_get_key(key)
-                if redis_value and redis_value["price"] == price:
-                    continue
-                if redis_value and 
+        pass
 
     def sync_get_products(self) -> List[Product]:
         products: List[Product] = []
@@ -173,8 +170,12 @@ class ScrapeDentalStall:
                 name = product.find('h2', class_='woo-loop-product__title').text.strip()
 
                 # product price
-                price = product.find('span', class_='price').text.strip()
-                price = self.get_price(price)
+                # price is not mentioned in some items
+                try:
+                    price = product.find('span', class_='price').text.strip()
+                    price = self.get_price(price)
+                except AttributeError:
+                    price = 0.0
 
                 # check redis
                 redis_value = redis_get_key(name)

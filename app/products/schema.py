@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from fastapi import Query
 from pydantic import BaseModel
 
 
@@ -10,8 +11,8 @@ class Product(BaseModel):
 
 
 class SearchQuery(BaseModel):
-    page: Optional[int] = 1
-    proxy: Optional[str] = ""
+    page: Optional[int] = Query(1, description="Page number")
+    proxy: Optional[str] = Query("", description="Proxy information")
 
 
 class SearchResponse(BaseModel):
